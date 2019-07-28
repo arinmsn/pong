@@ -5,6 +5,17 @@ class Vec
         this.x = x;
         this.y = y;
     }
+
+    get len()
+    {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+    set len(value)
+    {
+        const fact = value / this.len;
+        this.x *= fact;
+        this.y *= fact;
+    }
 }
 
 class Rect 
@@ -93,7 +104,12 @@ class Pong
         // Ball is colliding with the player
         if (player.left < ball.right &&  player.right > ball.left &&
             player.top < ball.bottom && player.bottom > ball.top) {
+                const len = ball.vel.len;
                 ball.vel.x = -ball.vel.x;
+                ball.vel.y += 300 * (Math.random() - 0.5); // Horizontal velocity
+                // Increase ball's velocity by 5% everytime we hit it
+                // ball.vel.len *= 1.05;
+                ball.vel.len = len * 1.05;
             }
     }
 
@@ -131,6 +147,7 @@ class Pong
             // On Start, randomize initial direction of ball
             this.ball.vel.x = 300 * (Math.random() * .5 ? 1: -1);
             this.ball.vel.y = 300 * (Math.random() * 2 - 1);;
+            this.ball.vel.len = 200;
         }
     }
 

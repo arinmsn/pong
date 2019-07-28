@@ -60,11 +60,6 @@ class Pong
         this._context = canvas.getContext('2d');
 
         this.ball = new Ball;
-        this.ball.pos.x = 100;
-        this.ball.pos.y = 50;
-
-        this.ball.vel.x = 100;
-        this.ball.vel.y = 100;
 
         this.players = [
             new Player,
@@ -91,6 +86,15 @@ class Pong
             requestAnimationFrame(callback);
         };
         callback();
+        this.reset();
+    }
+
+    collide(player, ball) {
+        // Ball is colliding with the player
+        if (player.left < ball.right &&  player.right > ball.left &&
+            player.top < ball.bottom && player.bottom > ball.top) {
+                ball.vel.x = -ball.vel.x;
+            }
     }
 
     draw() {
@@ -109,6 +113,27 @@ class Pong
         this._context.fillRect(rect.left, rect.top,
                     rect.size.x, rect.size.y);
     }
+
+    reset()
+    {
+        //Place the ball vertically centered
+        this.ball.pos.x = this._canvas.width / 2;
+        //Place the ball horizontally centered
+        this.ball.pos.y = this._canvas.height / 2;
+
+        this.ball.vel.x = 0;
+        this.ball.vel.y = 0;
+    }
+
+    start()
+    {
+        if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
+            // On Start, randomize initial direction of ball
+            this.ball.vel.x = 300 * (Math.random() * .5 ? 1: -1);
+            this.ball.vel.y = 300 * (Math.random() * 2 - 1);;
+        }
+    }
+
     update(dt) {
         // Movement of the ball
         this.ball.pos.x += this.ball.vel.x * dt;
@@ -116,12 +141,32 @@ class Pong
     
         // Ensure this.ball bounces off  ----------------------------
         if (this.ball.left < 0 || this.ball.right > this._canvas.width) {
-            this.ball.vel.x = -this.ball.vel.x
+            // Keeping tab of scores
+            // Shorthand - '| 0' will convert it to an integer
+            // 'this.ball.vel.x < 0 will take care of boolean logic
+            let playerId = this.ball.vel.x < 0 | 0;
+            console.log(playerId);
+            this.players[playerId].score++;
+            this.reset();
+            // let playerId;
+            // if (this.ball.vel.x < 0) {
+            //     playerId = 1;
+            // } else {
+            //     playerId = 0;
+            // }
+
+            
+            this.ball.vel.y = -this.ball.vel.y
         }
     
         if (this.ball.top < 0 || this.ball.bottom > this._canvas.height) {
             this.ball.vel.y = -this.ball.vel.y
-        }
+        } //---------------------------------------------------------
+
+        // Computer player to follow the ball
+        this.players[1].pos.y = this.ball.pos.y;
+
+        this.players.forEach(player => this.collide(player, this.ball));
 
         this.draw();
     }
@@ -130,3 +175,12 @@ class Pong
 const canvas = document.getElementById('pong');
 // Initialize the game
 const pong = new Pong(canvas);
+
+// User can now use the mouse to move the player.
+canvas.addEventListener('mousemove', event => {
+    pong.players[0].pos.y = event.offsetY;
+});
+
+canvas.addEventListener('click', event => {
+    pong.start();
+});

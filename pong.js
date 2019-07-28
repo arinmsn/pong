@@ -97,6 +97,40 @@ class Pong
             requestAnimationFrame(callback);
         };
         callback();
+
+        // Scoreboard numbering system
+        this.CHAR_PIXEL = 10;
+        this.CHARS = [
+            '111101101101111',      // '0'
+            '010010010010010',      // '1'
+            '111001111100111',      // '2'
+            '111001111001111',      // '3'
+            '101101111001001',      // '4'
+            '111100111001111',      // '5'
+            '111100111101111',      // '6'
+            '111001001001001',      // '7'
+            '111101111101111',      // '8'
+            '111101111001111'       // '9'
+        ].map(str => {
+            const canvas = document.createElement('canvas');
+            canvas.height = this.CHAR_PIXEL * 5;
+            canvas.width = this.CHAR_PIXEL * 5;
+            const context = canvas.getContext('2d');
+            context.fillStyle = '#fff';
+            str.split('').forEach((fill, i) => {
+                if (fill === '1') {
+                    // We paint a pixel.
+                    context.fillRect(
+                        (i % 3) * this.CHAR_PIXEL,
+                        // | 0 floors the i/3
+                        (i / 3 | 0) * this.CHAR_PIXEL, 
+                        this.CHAR_PIXEL,
+                        this.CHAR_PIXEL);
+                }
+            });
+            return canvas;
+        });
+
         this.reset();
     }
 
@@ -121,6 +155,8 @@ class Pong
         
         this.drawRect(this.ball);
         this.players.forEach(player => this.drawRect(player));
+
+        this.drawScore();
     }
     drawRect(rect)
     {
@@ -128,6 +164,24 @@ class Pong
         // (rec.pos.x, rect.pos.y ...) will not center players correctly
         this._context.fillRect(rect.left, rect.top,
                     rect.size.x, rect.size.y);
+    }
+
+    drawScore()
+    {
+        const align = this._canvas.width / 3;
+        // Character width - 1 char. is 3 pixels unit
+        const CHAR_W = this.CHAR_PIXEL * 4;
+        this.players.forEach((player, index) => {
+            const chars = player.score.toString().split('');
+            const offset = align *
+                (index + 1) - (CHAR_W * chars.length / 2) +
+                this.CHAR_PIXEL / 2;
+            // 20 pixels from top
+            chars.forEach((char, pos) => {
+                this._context.drawImage(this.CHARS[char|0],
+                offset + pos * CHAR_W, 20);
+            });
+        })
     }
 
     reset()
@@ -195,7 +249,9 @@ const pong = new Pong(canvas);
 
 // User can now use the mouse to move the player.
 canvas.addEventListener('mousemove', event => {
-    pong.players[0].pos.y = event.offsetY;
+    const scale = event.offsetY / event.target.getBoundingClientRect().height;
+    // pong.players[0].pos.y = event.offsetY;
+    pong.players[0].pos.y = canvas.height * scale;
 });
 
 canvas.addEventListener('click', event => {

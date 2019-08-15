@@ -143,7 +143,7 @@ class Pong
                 ball.vel.y += 300 * (Math.random() - 0.5); // Horizontal velocity
                 // Increase ball's velocity by 5% everytime we hit it
                 // ball.vel.len *= 1.05;
-                ball.vel.len = len * 1.05;
+                ball.vel.len = len * 1.01;
             }
     }
 

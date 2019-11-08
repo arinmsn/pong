@@ -216,17 +216,9 @@ class Pong
             // Shorthand - '| 0' will convert it to an integer
             // 'this.ball.vel.x < 0 will take care of boolean logic
             let playerId = this.ball.vel.x < 0 | 0;
-            console.log(playerId);
+         
             this.players[playerId].score++;
             this.reset();
-            // let playerId;
-            // if (this.ball.vel.x < 0) {
-            //     playerId = 1;
-            // } else {
-            //     playerId = 0;
-            // }
-
-            
             this.ball.vel.y = -this.ball.vel.y
         }
     
